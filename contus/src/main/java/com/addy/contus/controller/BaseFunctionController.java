@@ -1,29 +1,28 @@
 package com.addy.contus.controller;
 
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.Locale;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-
-import org.apache.log4j.Logger;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import com.addy.contus.dto.CreatePaymentRequestDTO;
+import com.addy.contus.service.SwissPaymentGatewayService;
 
 
 @Controller
@@ -41,7 +40,8 @@ public class BaseFunctionController {
 	@Autowired
 	LocaleChangeInterceptor interceptor;
 	
-	
+	@Autowired
+	SwissPaymentGatewayService swissPaymentGatewayService;
 	
 	
 	private static final Logger logger = Logger.getLogger(BaseFunctionController.class);
@@ -537,4 +537,15 @@ public class BaseFunctionController {
 		 
 		 return "developer";
 	 }
+	 
+	 @RequestMapping(value = "/swish-create-payment",method = RequestMethod.GET)
+     public String createPaymentLinkForSwishPaymentGateway() throws FileNotFoundException {
+       CreatePaymentRequestDTO requestParameters = new CreatePaymentRequestDTO();
+       //requestParameters.setAmount(amount);
+       //requestParameters.setPayeeAlias("46712345678");
+       swissPaymentGatewayService.createSwissPaymentGateway(requestParameters);
+       return "swishClock";
+     }
+	 
+	 
 }
