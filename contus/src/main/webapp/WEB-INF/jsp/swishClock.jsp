@@ -1,10 +1,22 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Swish Payment Clock</title>
+<style>
+img {
+	max-width: 480px;
+	width: 100%;
+	height: auto;
+        display: block;
+        margin:20px auto;
+	
+    }
+</style>
+<link rel="stylesheet" type="text/css"
+	href="resources/css/customFrontPage.css">
+<title>Swish Payment Gateway</title>
 </head>
 <script type="text/javascript">
 function startTimer(duration, display) {
@@ -31,6 +43,13 @@ window.onload = function () {
 }
 </script>
 <body>
-    <div>Swish Payment Gateway closes in <span id="time">03:00</span> minutes!</div>
+	<div style="text-align: center;">
+		Swish Payment Gateway closes in <span id="time">03:00</span> minutes!
+	</div>
+	<div style="text-align: center;">
+		<img src="resources/swishImage.png" class="rotate" width="100"
+			height="100" /> <img src="resources/swishLogo.png" width="100"
+			height="100" />
+	</div>
 </body>
 </html>

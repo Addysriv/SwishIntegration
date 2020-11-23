@@ -11,7 +11,9 @@ import java.util.Set;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMethod;
 import com.addy.contus.dto.CreatePaymentRequestDTO;
 import com.addy.contus.dto.Currency;
 import com.addy.contus.service.SwissPaymentGatewayService;
@@ -20,54 +22,61 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayService {
   
-  @Value("$(keyStore)")
+  @Value("${testKeyStore}")
   private String keystoreFileLocation;
   
-  @Value("$(keyStorePassword)")
+  @Value("${testKeyStorePassword}")
   private String keyStorePassword;
   
-  @Value("$(keyStoreType)")
+  @Value("${keyStoreType}")
   private String keystoreType;
   
-  @Value("$(trustStore)")
+  @Value("${trustStore}")
   private String trustStoreFileLocation;
   
-  @Value("$(trustStorePassword)")
+  @Value("${trustStorePassword}")
   private String trustStorePassword;
   
-  @Value("$(trustStoreType)")
+  @Value("${trustStoreType}")
   private String trustStoreType;
   
-  @Value("$(klarnaUser)")
+  @Value("${swishClientId}")
   private String swishClientId;
+  
+  @Value("${testSwishPaymentRequesturl}")
+  private String testSwishPaymentRequesturl;
+  
+  @Value("${prodSwishPaymentRequestUrl}")
+  private String prodSwishPaymentRequestUrl;
+  
+  @Value("${swishPaymentDescription}")
+  private String swishPaymentDescription;
   
   @Override
   public String createSwissPaymentGateway(CreatePaymentRequestDTO requestParameters) {
-    System.setProperty("javax.net.ssl.keyStore", "D:\\FreelancingProject\\Delivery\\cm\\src\\SwishIntegration\\contus\\src\\main\\resources\\Swish_Merchant_TestCertificate_1234679304.p12");
-    System.setProperty("javax.net.ssl.keyStorePassword", "swish");
-    System.setProperty("javax.net.ssl.keyStoreType", "PKCS12");
+    System.setProperty("javax.net.ssl.keyStore",keystoreFileLocation);
+    System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
+    System.setProperty("javax.net.ssl.keyStoreType", keystoreType);
 
-    System.setProperty("javax.net.ssl.trustStore", "D:\\FreelancingProject\\Delivery\\cm\\src\\SwishIntegration\\contus\\src\\main\\resources\\truststore.jks");
-    System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
-    System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+    System.setProperty("javax.net.ssl.trustStore", trustStoreFileLocation);
+    System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+    System.setProperty("javax.net.ssl.trustStoreType", trustStoreType);
 
     HttpsURLConnection connection = null;
-    System.out.println(swishClientId);
-    System.out.println(System.getProperty("javax.net.ssl.keyStore"));
-    System.out.println(System.getProperty("javax.net.ssl.trustStore"));
+
     try {
-        URL url = new URL("https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests");
+        URL url = new URL(testSwishPaymentRequesturl);
 
         connection = (HttpsURLConnection) url.openConnection();
         SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         connection.setSSLSocketFactory(sslsocketfactory);
-        connection.setRequestMethod("POST");
+        connection.setRequestMethod(RequestMethod.POST.toString());
 
         requestParameters.setAmount("100");
         requestParameters.setCallbackUrl("https://google.com");
         requestParameters.setCurrency(Currency.SEK);
-        requestParameters.setMessage("Payment For Contus Personality Test");
-        requestParameters.setPayeeAlias("1232011377");
+        requestParameters.setMessage(swishPaymentDescription);
+        requestParameters.setPayeeAlias(swishClientId);
         requestParameters.setPayeePaymentReference("76587733432-4213");
         
         /*
@@ -79,7 +88,7 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
          */
         ObjectMapper Obj = new ObjectMapper();
         requestParameters.setPayerAlias("46712345678");
-        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         connection.setRequestProperty("Content-Length", Integer.toString(requestParameters.toString().length()));
 
         connection.setUseCaches(false);

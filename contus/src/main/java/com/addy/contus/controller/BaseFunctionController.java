@@ -547,5 +547,11 @@ public class BaseFunctionController {
        return "swishClock";
      }
 	 
+	 @RequestMapping(value = "/swish-get-paymentStatus",method = RequestMethod.GET)
+     public String getPaymentStatusForSwish() throws FileNotFoundException {
+       
+       return "swishClock";
+     }
+	 
 	 
 }
