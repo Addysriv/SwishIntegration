@@ -539,19 +539,13 @@ public class BaseFunctionController {
 	 }
 	 
 	 @RequestMapping(value = "/swish-create-payment",method = RequestMethod.GET)
-     public String createPaymentLinkForSwishPaymentGateway() throws FileNotFoundException {
-       CreatePaymentRequestDTO requestParameters = new CreatePaymentRequestDTO();
-       //requestParameters.setAmount(amount);
-       //requestParameters.setPayeeAlias("46712345678");
-       swissPaymentGatewayService.createSwissPaymentGateway(requestParameters);
+     public String createPaymentLinkForSwishPaymentGateway(ModelMap map){
+       String amount="100";
+       String payerAlias="4354";
+       map.put("paymentRequestInfoUrl",swissPaymentGatewayService.createSwissPaymentGateway(amount,payerAlias));
        return "swishClock";
      }
 	 
-	 @RequestMapping(value = "/swish-get-paymentStatus",method = RequestMethod.GET)
-     public String getPaymentStatusForSwish() throws FileNotFoundException {
-       
-       return "swishClock";
-     }
-	 
+	
 	 
 }
