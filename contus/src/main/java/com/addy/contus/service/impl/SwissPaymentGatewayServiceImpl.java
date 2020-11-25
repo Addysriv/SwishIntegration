@@ -6,10 +6,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -50,7 +52,7 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
       createPaymentrequestDTO.setCurrency(Currency.SEK);
       createPaymentrequestDTO.setMessage(swishPaymentDescription);
       createPaymentrequestDTO.setPayeeAlias(swishClientId);
-      createPaymentrequestDTO.setPayeePaymentReference("76587733432-4213");
+      createPaymentrequestDTO.setPayeePaymentReference(RandomStringUtils.randomAlphanumeric(32).toUpperCase(Locale.ENGLISH));
 
       /*
        * The registered cellphone number of the person that makes the payment. It can only contain
