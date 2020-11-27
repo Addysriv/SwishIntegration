@@ -67,7 +67,7 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
        *
        */
       ObjectMapper Obj = new ObjectMapper();
-      createPaymentrequestDTO.setPayerAlias(swishClientCountryCode+"707631697");
+      createPaymentrequestDTO.setPayerAlias(swishClientCountryCode+payerAlias);
       connection.setRequestProperty("Content-Type", MediaType.APPLICATION_JSON_VALUE);
       connection.setRequestProperty("Content-Length",
           Integer.toString(createPaymentrequestDTO.toString().length()));
