@@ -2,11 +2,8 @@ package com.addy.contus.service.impl;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
@@ -24,11 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.addy.contus.dto.CreatePaymentRequestDTO;
 import com.addy.contus.dto.Currency;
 import com.addy.contus.dto.GetSwishPaymentResponseDTO;
-import com.addy.contus.dto.SwishPaymentErrorCodeDTOArray;
 import com.addy.contus.dto.SwissPaymentErrorCodeDTO;
 import com.addy.contus.service.SwissPaymentGatewayService;
-import com.addy.contus.service.exception.SwishPaymentCreationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
@@ -40,14 +34,17 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 
   @Value("${swishPaymentDescription}")
   private String swishPaymentDescription;
+  
+  @Value("${swishClientCountryCode}")
+  private String swishClientCountryCode;
 
 
   @Override
-  public String createSwissPaymentGateway(String amount,String payerAlias) throws JsonProcessingException, IOException, SwishPaymentCreationException {
+  public String createSwissPaymentGateway(String amount,String payerAlias)  {
 
     HttpsURLConnection connection = null;
 
-
+      try {
       URL url = new URL(System.getProperty("contus.system.swishpaymenturl"));
 
       connection = (HttpsURLConnection) url.openConnection();
@@ -70,7 +67,7 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
        *
        */
       ObjectMapper Obj = new ObjectMapper();
-      createPaymentrequestDTO.setPayerAlias(payerAlias);
+      createPaymentrequestDTO.setPayerAlias(swishClientCountryCode+"707631697");
       connection.setRequestProperty("Content-Type", MediaType.APPLICATION_JSON_VALUE);
       connection.setRequestProperty("Content-Length",
           Integer.toString(createPaymentrequestDTO.toString().length()));
@@ -98,19 +95,20 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
           System.out.println(error);
           SwissPaymentErrorCodeDTO[] swishError = mapper.readValue(error, SwissPaymentErrorCodeDTO[].class);
 
-          throw new SwishPaymentCreationException(swishError[0].errorMessage);
+          return ("error:"+swishError[0].errorMessage);
         }
         
         
       }
-      StringBuilder response = new StringBuilder();
-      String line;
-      while ((line = rd.readLine()) != null) {
-        response.append(line);
-        response.append('\r');
-      
+//      StringBuilder response = new StringBuilder();
+//      String line;
+//      while ((line = rd.readLine()) != null) {
+//        response.append(line);
+//        response.append('\r');
+//      
+//      
+//      }
       rd.close();
-      
       // Print response headers
       Map<String, List<String>> headers = connection.getHeaderFields();
       Set<Map.Entry<String, List<String>>> entrySet = headers.entrySet();
@@ -118,11 +116,13 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
         String headerName = entry.getKey();
         List<String> headerValues = entry.getValue();
         if (StringUtils.equalsIgnoreCase(headerName, "Location")) {
-          System.out.println(headerValues.get(0));
           return headerValues.get(0);
         }
       }
+      }catch(Exception e) {
+        return ("error:"+"Server is down or busy!! Please try after Sometime");
       }
+      
      
     return null;
   }
