@@ -28,6 +28,7 @@
 				clearInterval(counter);
 				return;
 			} else {
+				
 				newseconds = newseconds - 1;
 			}
 			minutes = parseInt(timer / 60, 10);
@@ -48,11 +49,14 @@
 
 		var timeoutCounter2 = setInterval(function() {
 			if (secondCounter <= 0) {
+				
 				clearInterval(timeoutCounter2);
+				clearInterval(counter);
 				$("#swish-timeout").hide();
 				$("#message-timeout").show();
 				return;
 			} else {
+				
 				secondCounter--;
 				waitForPayment(timeoutCounter2);
 			}
@@ -81,8 +85,7 @@
 
 						//console.log the response
 						if (data == 'CREATED') {
-							console
-									.log("Do Nothing!!Continue till we get Success or Fail Response");
+							
 						} else if (data == 'ERROR') {
 							$("#swish-timeout").hide();
 							clearInterval(timeoutCounter2);
