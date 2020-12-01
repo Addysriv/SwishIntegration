@@ -1,1 +1,11 @@
+com\addy\contus\profile\ProductionPropertySetter.class
+com\addy\contus\service\impl\SwissPaymentGatewayServiceImpl.class
+com\addy\contus\profile\DeveloperPropertySetter.class
+com\addy\contus\dto\GetSwishPaymentResponseDTO.class
+com\addy\contus\service\exception\SwishPaymentCreationException.class
+com\addy\contus\dto\SwissPaymentErrorCodeDTO.class
+com\addy\contus\dto\Currency.class
+com\addy\contus\dto\CreatePaymentRequestDTO.class
 com\addy\contus\controller\BaseFunctionController.class
+com\addy\contus\controller\ContusSwishRestController.class
+com\addy\contus\service\SwissPaymentGatewayService.class
