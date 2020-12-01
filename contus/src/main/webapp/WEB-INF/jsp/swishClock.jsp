@@ -16,19 +16,28 @@
 	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js"></script>
 <title>Swish Payment Gateway</title>
 <script type="text/javascript">
+
+
+
+var swishTimeoutMsg="<spring:message code="label.contus.swishLimitReached" />";
+
+
+
 	function startTimer(duration, display) {
 		var newseconds = 180;
 		var timer = duration, minutes, seconds;
 		var counter = setInterval(function() {
 			if (newseconds <= 0) {
 				clearInterval(counter);
-				$("#message-timeout").show();
+				//$("#message-timeout").show();
+				$('#openSwishAppText').text(swishTimeoutMsg);
+				$('#time').text('00:00');
+				$('#swishAnimeImg').removeClass('rotate');
 				return;
 			} else if ($("#swish-success").is(":visible")) {
 				clearInterval(counter);
 				return;
 			} else {
-				
 				newseconds = newseconds - 1;
 			}
 			minutes = parseInt(timer / 60, 10);
@@ -49,14 +58,15 @@
 
 		var timeoutCounter2 = setInterval(function() {
 			if (secondCounter <= 0) {
-				
 				clearInterval(timeoutCounter2);
 				clearInterval(counter);
-				$("#swish-timeout").hide();
-				$("#message-timeout").show();
+				/* $("#swish-timeout").hide();
+				$("#message-timeout").show(); */
+				$('#openSwishAppText').text(swishTimeoutMsg);
+				$('#time').text('00:00');
+				$('#swishAnimeImg').removeClass('rotate');
 				return;
 			} else {
-				
 				secondCounter--;
 				waitForPayment(timeoutCounter2);
 			}
@@ -64,13 +74,13 @@
 		}, 5000);
 	}
 
-	window.onload = function() {
+/* 	window.onload = function() {
 		$("#swish-success").hide();
 		$("#message-timeout").hide();
 		var threeminutes = 60 * 3, display = document.querySelector('#time');
 		startTimer(threeminutes, display);
 	}
-
+ */
 	//Our custom function.
 
 	function waitForPayment(timeoutCounter2, counter) {
@@ -78,25 +88,26 @@
 				.ajax({
 					url : "${pageContext.request.contextPath}/swish-get-paymentStatus",
 					data : ({
-						swishPaymentCheckurl : "${paymentRequestInfoUrl}"
+						swishPaymentCheckurl : swishCheckoutUrl
 					}),
 					async : false,
 					success : function(data) {
-
+						debugger;
+						console.log(data);
 						//console.log the response
 						if (data == 'CREATED') {
-							
+							console.log("Do Nothing!!Continue till we get Success or Fail Response");
 						} else if (data == 'ERROR') {
 							$("#swish-timeout").hide();
 							clearInterval(timeoutCounter2);
-
 							console.log("Payment Failed From Swish End!!");
-							window.location.href = '${pageContext.request.contextPath}/errorPage';
-						} else if (data == "PAID") {
-
+							window.location.href = '${pageContext.request.contextPath}/error';
+							
+						} else if (data.includes("PAID")) {
+							var ur=data.split(':');
 							clearInterval(timeoutCounter2);
-							$("#swish-timeout").hide();
 							$("#swish-success").show();
+							window.location.href = '${pageContext.request.contextPath}/'+ur[1];
 						}
 
 					}
@@ -104,58 +115,58 @@
 	}
 </script>
 <style>
-#Box {
-	border: 1px solid red;
-	width: 400px;
+
+#swishTextTimer{
+
+	font-family:  Avenir next, sans-serif;
+    font-size: 20px;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 2.4px; 
+    text-align: center;
+    color: #2d2d2d;
+
 }
 
-p {
-	width: 200px;
-	margin-left: 40%;
-	display: block;
+#openSwishAppText{
+
+	font-family:  Avenir next, sans-serif;
+    font-size: 18px;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 2.4px; 
+    text-align: center;
+    color: #2d2d2d;
+
 }
 
-dl dt {
-	margin-left: 0;
+
+
+
+.rotate {
+  animation: rotation 5s infinite linear;
 }
 
-.image-container {
-	width: 200px;
-	display: flex;
-	justify-content: center;
-	margin: 10px;
-	padding: 10px;
-	/* Material design properties */
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }
-
-.image-2 {
-	width: 500px;
-	align-self: flex-start; /* to preserve image aspect ratio */
-}
-
 div#message-timeout {
-	position: fixed;
-	left: 0px;
-	top: 0px;
-	z-index: 1050;
-}
-
-div#timeout-warning {
-	background: #f7941e;
-	border: 3px solid #f0ad4e;
-	color: #fff;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 14px;
-	padding: 10px;
-}
-
-div#timeout-error {
-	background: red;
-	border: 3px solid #f0ad4e;
-	color: #fff;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 14px;
-	padding: 10px;
+	font-family:  Avenir next, sans-serif;
+    font-size: 20px;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 2.4px; 
+    text-align: center;
+    color: #2d2d2d;
+	
 }
 
 #swishText {
@@ -207,63 +218,49 @@ div#timeout-error {
 </style>
 </head>
 <body>
+
+<div class="container">
 	<div id="swish-timeout">
 		<br>
 		<div class="row">
-			<div class="col-sm-3"></div>
-			<div class="col-sm-6" style="text-align: center;">
-				<div class="center; style="margin-left: 17%; margin-top: 15%;">
-					<img src="resources/swishImage.png"
-						style="width: 145px; height: 133px; margin-left: 17%; margin-top: 15%;"
-						class="rotate" /> <span id="swishText"
-						style="margin-top: -5%; font-family: Avenir next, sans-serif; font-size: 15px; font-stretch: normal; font-style: normal; line-height: normal; letter-spacing: 2.4px; margin-left: 10%; position: relative; bottom: 15%;">
-					</span>
+			<div class="col-sm-2"></div>
+			<div class="col-sm-8" style="text-align: center;">
+				<span id="openSwishAppText"> <spring:message code="label.contus.launchSwish" /></span>
+				
+			</div>
+		
+		</div>
+		<br><br><br>
+		<div class="row">
+			<div class="col-sm-2"></div>
+			<div class="col-sm-8" style="text-align: center;">
+				<div class="center" >
+					<img src="resources/swishImageCrop.png" id="swishAnimeImg"
+						style="width: 21%;"	class="rotate" /> 
+						<span id="swishText">
+						</span>
 				</div>
-				<div class="center;" style="margin-left: 17%; margin-top: 15%;">
-					<div class="col-sm-2" id="extraSpaceDiv"></div>
-					<div class="col-sm-10">
-						Swish Payment Gateway closes in <span id="time">03:00</span>
-						minutes!
-					</div>
-				</div>
+				<br>
+				
+				<!-- <img src="resources/swishTextImage.png" id="swishImage" style="width: 80px;height: 24px;"/> -->
+					<!-- <div  id="swishTextTimer">
+						Session expiring in <span id="time">03:00</span> minutes!
+						
+					</div> -->
+					<span id="time" style="float:right;font-family:  Avenir next, sans-serif;">03:00</span>
 			</div>
 		</div>
-		</br>
+		<br>
 	</div>
 
 	<div id="swish-success">
-		<br>
-		<div class="row">
-			<div class="col-sm-3"></div>
-			<div class="col-sm-6" style="text-align: center;">
-				<div class="center;">
-					<div class="row text-center">
-						<div class="col-sm-6 col-sm-offset-3">
-							<br> <br>
-							<p>Detail Message</p>
-							<div class="alert alert-success">
-								<strong>Success!</strong>
-							</div>
-							<dl class="dl-horizontal">
-								<dt>Payment Succesfull in Swish Gateway. Redirecting you to
-									HomePage</dt>
-
-							</dl>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+	
 	</div>
-	</br>
+	<br>
+	
+	<div id="message-timeout" style="display:none;">
+		SWISH REACHED A TIME LIMIT BEFORE PAYMENT STARTED
 	</div>
-	<div id="message-timeout">
-		<div id="timeout-warning">
-			<strong>Error: Swish Payment Gateway Timeout</strong>
-		</div>
-		<div id="timeout-error">
-			<strong>Your session has expired.</strong>
-		</div>
-	</div>
+</div>
 </body>
 </html>

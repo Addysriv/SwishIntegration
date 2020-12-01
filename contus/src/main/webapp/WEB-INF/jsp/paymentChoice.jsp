@@ -927,7 +927,7 @@ function previousPage(){
 	            
 	     title:{
 	       display:true,
-	       text:'The Results',
+	       text:result,
 	       fontSize:30
 	     },
 	     legend:{
@@ -1055,7 +1055,7 @@ width: 183px;
 #homeText{
 width: 290px;
   height: 27px;
-  font-family: AvenirNext;
+  font-family: AvenirNext, sans-serif;
   font-size: 20px;
   font-weight: bold;
   font-stretch: normal;

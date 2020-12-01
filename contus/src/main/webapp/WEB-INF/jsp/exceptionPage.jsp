@@ -33,21 +33,26 @@
 
 
 <meta charset="ISO-8859-1">
-<title>Contus Error Page</title>
+<title><spring:message code="label.contus.errorPage" /></title>
 </head>
 <body>
 
 <img src="<c:url value="/resources/logo2.png" ></c:url>" alt="Contus Logo" style="width: 20%;">
 <br><br><br>
-<div id="errorDiv">
-<!-- <span id="aboveError">Oops </span> -->
-<br><br>
-<span id="errorText" >Error Occured!!!</span> <br>
-<br><span id="belowError">Sorry, It looks like something went wrong.Please contact us in case of any issues or return to home page.</span>
-<br><br><br><br>
-<button id="homePage" onclick="redirectToHome();"><span id="homeText">Home Page</span></button>
-
-</div>
+	<div class="container">	
+	  <div class="row">
+	    <div class="col-sm-2"></div>
+			<div id="errorDiv" class="col-sm-10">
+			<!-- <span id="aboveError">Oops </span> -->
+			<br><br>
+			<span id="errorText" ><spring:message code="label.contus.errorOccur" /></span> <br>
+			<br><span id="belowError"><spring:message code="label.contus.errorSorryText" /><br><spring:message code="label.contus.errorSorryText2" /></span>
+			<br><br><br><br><br>
+			<button id="homePage" onclick="redirectToHome();"><span id="homeText"><spring:message code="label.contus.homePage" /></span></button>
+			
+			</div>
+		</div>
+	</div>
 <script>
 
 function redirectToHome(){
@@ -59,9 +64,7 @@ function redirectToHome(){
 </script>
 
 <style>
-#errorDiv{
-margin-left:24%;
-}
+
 
 #homeText{
 width: 290px;
@@ -80,7 +83,7 @@ width: 290px;
  width: 504px;
   height: 328px;
   font-family: AvenirNext;
-  font-size: 100px;
+  font-size: 500%;
   font-weight: 900;
   font-stretch: normal;
   font-style: normal;
@@ -120,11 +123,11 @@ width: 290px;
   color: #313131;
 }
 #homePage{
-width: 347px;
-  height: 60px;
+  width: 250px;
+  height: 50px;
   border-radius: 30px;
   background-color: #2d2d2d;
-  margin-left: 17%;
+  margin-left: 15%;
 }
 
 

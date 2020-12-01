@@ -31,13 +31,15 @@
  var defaultLanguage='';
  var userLang = '${lang}';
  defaultLanguage=userLang;
- 
+ var swishCheckoutUrl="";
  var klarnaClicked=false;
  var swishClicked=false;
  var checkIfCouponValid=true;
  var invalidErrorCode='<spring:message code="label.contus.invalidCoupon" />';
  var couponApplied='<spring:message code="label.contus.validCoupon" />';
  var currency= '<spring:message code="label.contus.sek" />';
+ var swishPayeeErrorMsg='<spring:message code="label.contus.swishNumbNotEnrolled" />';
+	  
  
  function checkCheckBox(){
 	 if(document.getElementById('termsCheckBox').checked==true)
@@ -108,7 +110,7 @@ $( document ).ready(function() {
 							$('#userCoupon').css("background-color","rgba(255, 142, 34, 0.31)"); */	
 						}
 						else{
-							jqXHR=jqXHR.substring(0, 2)+"."+jqXHR.substring(2, 4);
+							//jqXHR=jqXHR.substring(0, 2)+"."+jqXHR.substring(2, 4);
 						$('#amountToPay').text(jqXHR);
 						$('#couponError').text(couponApplied+' '+jqXHR+' '+currency);
 						$('#couponError').css("color","orange");/* 
@@ -193,26 +195,41 @@ function selectPaymentMethod(num){
 function continueCheckout(){
 	var flag = true;
 	debugger;
-	
+	$("#userMobile").hide();
 	 if($("input[name='paymentMethod']:checked").val()==undefined && $('#userCoupon').val()=="")
 	 {
 		 return;
 	 }
 	
 	var coupon=$('#userCoupon').val();
-	/* var payment=$("input[name='paymentMethod']:checked"). val();
-	if(payment==undefined)
+
 	
-	couponError
-	 */
+	if($("input[name='paymentMethod']:checked").val()=="swish")
+	{
+		$("#userName").show();
+		$("#userEmail").show();
+		$("#userMobile").show();
+	}
+	
 	if($('#amountToPay').text()=="0.00"){
 		$("#userName").show();
 		$("#userEmail").show();
+		$("#userMobile").hide();
 	}
 	else{
+		
 		$("#userName").hide();
 		$("#userEmail").hide();
+		$("#userMobile").hide();
+		
+		if($("input[name='paymentMethod']:checked").val()=="swish")
+		{
+			$("#userName").show();
+			$("#userEmail").show();
+			$("#userMobile").show();
+		}
 	}
+	
 	if(checkIfCouponValid==true){	
 	$('#userInfo').hide();
 	$('#paymentDiv').show();
@@ -239,7 +256,7 @@ function continuePayment(){
 	var name=$('#userName').val();
 	var email=$('#userEmail').val();
 	var coupon=$('#userCoupon').val();
-	
+	var mobile=$('#userMobile').val();
 	var payment=$("input[name='paymentMethod']:checked").val();
 	if(payment==undefined)
 		{
@@ -262,6 +279,7 @@ function continuePayment(){
 			userEmail : email,
 			userCoupon : coupon,
 			paymentMode : payment,
+			userMobile : mobile,
 			lang:defaultLanguage
 			}), 
 			success : function(jqXHR) {
@@ -275,10 +293,37 @@ function continuePayment(){
 					
 					window.location.href = ur[1];
 				}
-				else if(jqXHR=='error'){
-					console.log("error occured");
-					window.location.href = '${pageContext.request.contextPath}/errorPage';
+				else if(jqXHR.includes('swish::')){
+					var ur=jqXHR.split('::');
+					swishCheckoutUrl=ur[1];
+					$('#paymentDiv').css("display","none");
+					$('#swishPaymentDiv').css("display","block");
+					startSwishConfiguration(); 
+					
 				}
+				else if(jqXHR.includes('swish::')){
+					var ur=jqXHR.split('::');
+					swishCheckoutUrl=ur[1];
+					$('#paymentDiv').css("display","none");
+					$('#swishPaymentDiv').css("display","block");
+					startSwishConfiguration(); 
+					
+				}
+				else if(jqXHR.includes('errorSwish:')){
+					console.log("error occured");
+					var ur=jqXHR.split(':');
+					var errorMsg=ur[1];
+					if(errorMsg=="ACMT03"){
+					$('#swishErrorDiv').show();
+					$('#swishErrorText').text(swishPayeeErrorMsg);
+					}
+					else{
+						$('#swishErrorDiv').show();
+						$('#swishErrorText').text(errorMsg);
+					}
+					//window.location.href = '${pageContext.request.contextPath}/errorPage';
+				}
+				
 				else{
 				$('#KCO').val(jqXHR);
 				startKlarnaMethod();
@@ -302,13 +347,22 @@ function openPrivacyPolicy(){
 	window.open("${pageContext.request.contextPath}/privacyPolicy");
 }
 
+
+function startSwishConfiguration(){
+	
+	$("#swish-success").hide();
+	$("#message-timeout").hide();
+	var threeminutes = 60 * 3, display = document.querySelector('#time');
+	startTimer(threeminutes, display);
+}
+
 </script>
 </head>
 <body>
 
 
 <div id="userInfo">
-				<br>	
+				
 					<div class="row">
 						<div class="col-sm-3"></div>
 						<div class="col-sm-6" style="text-align:center;" >
@@ -356,7 +410,7 @@ function openPrivacyPolicy(){
 					<label><input type="radio" name="paymentMethod" value="swish" style="transform: scale(1.5);"></label>
 				</div> -->
 				<input type="radio" id="paymentSwish" name="paymentMethod"
-											class="" value="swish" disabled="true" readonly="true"> <label
+											class="" value="swish" > <label
 											class="role" for="paymentSwish" ></label>
 											
 				
@@ -365,7 +419,7 @@ function openPrivacyPolicy(){
 				
 				<span id="swishText" class="" style="margin-top: -5%;font-family: Avenir next, sans-serif;font-size: 15px;
 						font-stretch: normal;font-style: normal;line-height: normal;letter-spacing: 2.4px;margin-left:10%;position: relative;bottom: 15%;"> 
-					(<spring:message code="label.contus.comingSoon" />)
+					<%-- (<spring:message code="label.contus.comingSoon" />) --%>
 				</span>
 				
 				</span>
@@ -420,7 +474,7 @@ function openPrivacyPolicy(){
 						</div>
 					
 						<br>
-							<div class="row" class="userDataDiv">
+							<div class="row userDataDiv">
 								<div class="col-sm-3"></div>
 								<div class="col-sm-6">
 									<input type="text" placeholder="&nbsp;&nbsp;<spring:message code="label.contus.contactName" />"	 id="userName">
@@ -428,11 +482,29 @@ function openPrivacyPolicy(){
 								</div>
 							</div>
 							<br><br>
-							<div class="row" class="userDataDiv">
+							<div class="row userDataDiv">
 								<div class="col-sm-3"></div>
 								<div class="col-sm-6">
 									<input type="text" placeholder="&nbsp;&nbsp;<spring:message code="label.contus.contactEmail" />"  id="userEmail">
 									<span id="incorrectEmail" style="color:red;margin-left: 2%;"></span>
+								</div>
+							</div>
+							<br><br>
+							<div class="row userDataDiv">
+								<div class="col-sm-3"></div>
+								<div class="col-sm-6">
+									<input type="text" placeholder="&nbsp;&nbsp;<spring:message code="label.contus.contactMobile" />"  id="userMobile">
+									<span id="incorrectMobile" style="color:red;margin-left: 2%;"></span>
+								</div>
+							</div>
+							
+							<div class="row"  id="swishErrorDiv" style="display:none;">
+							<br>
+								<div class="col-sm-3"></div>
+								<div class="col-sm-6" style="padding-top: 1%;padding-left: 2%;">
+									
+									&nbsp;&nbsp;<span id="swishErrorText"></span>
+									<br>
 								</div>
 							</div>
 						
@@ -498,6 +570,9 @@ function openPrivacyPolicy(){
 			</div>
 					
 					
+	<div id="swishPaymentDiv" style="display:none;">
+		<%@ include file="swishClock.jsp" %> 
+	</div>
 
 
 
@@ -636,7 +711,7 @@ font-family:  Avenir next, sans-serif;
                 no-repeat;
 }
 
-#userEmail , #userName{
+#userEmail , #userName , #userMobile{
     width: 100%;
     height: 40px;
     border-radius: 14px;
@@ -696,6 +771,18 @@ font-family:  Avenir next, sans-serif;
     line-height: normal;
     letter-spacing: 5.58px;
     color: #525252;
+}
+
+#swishErrorText{
+
+    font-family: Avenir next, sans-serif;
+    font-size: 15px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    color: orange;
+
 }
 
 button.active.focus, button.active:focus,
