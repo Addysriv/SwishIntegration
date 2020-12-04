@@ -23,7 +23,7 @@ var swishTimeoutMsg="<spring:message code="label.contus.swishLimitReached" />";
 
 
 
-	function startTimer(duration, display) {
+	function startTimer(duration, display,swishCheckouturl,appCheckRequest) {
 		var newseconds = 180;
 		var timer = duration, minutes, seconds;
 		var counter = setInterval(function() {
@@ -37,7 +37,12 @@ var swishTimeoutMsg="<spring:message code="label.contus.swishLimitReached" />";
 			} else if ($("#swish-success").is(":visible")) {
 				clearInterval(counter);
 				return;
-			} else {
+			}
+			else if ($("#message-swish-launch-error").is(":visible")) {
+				clearInterval(counter);
+				return;
+			}
+			else {
 				newseconds = newseconds - 1;
 			}
 			minutes = parseInt(timer / 60, 10);
@@ -68,46 +73,77 @@ var swishTimeoutMsg="<spring:message code="label.contus.swishLimitReached" />";
 				return;
 			} else {
 				secondCounter--;
-				waitForPayment(timeoutCounter2);
+				paymentCheckout(timeoutCounter2,swishCheckouturl);
 			}
 
 		}, 5000);
 	}
 
-/* 	window.onload = function() {
+ 	window.onload = function() {
 		$("#swish-success").hide();
 		$("#message-timeout").hide();
 		var threeminutes = 60 * 3, display = document.querySelector('#time');
-		startTimer(threeminutes, display);
+		var paymentRequestInfo = "${paymentRequestInfoUrl}";
+		var appCheckRequest = true;
+		console.log(paymentRequestInfo);
+		var swishCheckouturl;
+		var paymenturlarray;
+		if (paymentRequestInfo.indexOf(',') > -1) {
+			debugger;
+			paymenturlarray = paymentRequestInfo.split(',');
+			var location = paymenturlarray[0];
+			console.log(location);
+			swishCheckouturl = paymenturlarray[1];
+			setTimeout(function() {
+	            window.open("https://www.swish.nu/private",'_target');
+	            appCheckRequest = false;
+	        }, 10);
+	        window.location = "swish://paymentrequest?token=" + location
+					+ "&callbackurl=https://google.com//";
+			console.log(swishCheckouturl);
+		} else {
+			swishCheckouturl = paymenturlarray;
+			console.log(swishCheckouturl);
+		}
+		startTimer(threeminutes, display,swishCheckouturl,appCheckRequest);
 	}
- */
+ 
 	//Our custom function.
 
-	function waitForPayment(timeoutCounter2, counter) {
+
+	function paymentCheckout(timeoutCounter2, swishCheckouturl,appCheckRequest) {
 		$
 				.ajax({
 					url : "${pageContext.request.contextPath}/swish-get-paymentStatus",
 					data : ({
-						swishPaymentCheckurl : swishCheckoutUrl
+						swishPaymentCheckurl : swishCheckouturl
 					}),
 					async : false,
 					success : function(data) {
 						debugger;
 						console.log(data);
+						if(!appCheckRequest){
+							$("#message-swish-launch-error").show();
+							$("#swish-timeout").hide();
+							clearInterval(timeoutCounter2);
+						}
 						//console.log the response
 						if (data == 'CREATED') {
-							console.log("Do Nothing!!Continue till we get Success or Fail Response");
+							
+							console
+									.log("Do Nothing!!Continue till we get Success or Fail Response");
 						} else if (data == 'ERROR') {
 							$("#swish-timeout").hide();
 							clearInterval(timeoutCounter2);
 							console.log("Payment Failed From Swish End!!");
 							window.location.href = '${pageContext.request.contextPath}/error';
-							
+
 						} else if (data.includes("PAID")) {
-							var ur=data.split(':');
+							var ur = data.split(':');
 							clearInterval(timeoutCounter2);
 							$("#swish-success").show();
-							window.location.href = '${pageContext.request.contextPath}/'+ur[1];
+							//window.location.href = '${pageContext.request.contextPath}/'
+								//	+ ur[1];
 						}
 
 					}
@@ -166,6 +202,18 @@ div#message-timeout {
     letter-spacing: 2.4px; 
     text-align: center;
     color: #2d2d2d;
+	
+}
+
+div#message-swish-launch-error {
+	font-family:  Avenir next, sans-serif;
+    font-size: 25px;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 5px; 
+    text-align: center;
+    color: red;
 	
 }
 
@@ -253,12 +301,42 @@ div#message-timeout {
 		<br>
 	</div>
 
-	<div id="swish-success">
-	
-	</div>
-	<br>
-	
-	<div id="message-timeout" style="display:none;">
+		<div id="swish-success">
+			<br>
+			<div class="row">
+				<div class="col-sm-3"></div>
+				<div class="col-sm-6" style="text-align: center;">
+					<div class="center;">
+						<div class="row text-center">
+							<div class="col-sm-6 col-sm-offset-3">
+								<br> <br>
+								<p>Detail Message</p>
+								<div class="alert alert-success">
+									<strong>Success!</strong>
+								</div>
+								<dl class="dl-horizontal">
+									<dt>Payment Succesfull in Swish Gateway. Redirecting you
+										to HomePage</dt>
+
+								</dl>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br>
+		<div id="message-swish-launch-error" style="display: none;">
+			<br></br>
+			<div class="row">
+				<div class="col-sm-2"></div>
+				<div class="col-sm-8" style="text-align: center;">
+					<span id="openSwishAppText"> <spring:message
+							code="label.contus.launchSwishFailed" /></span>
+				</div>
+			</div>
+		</div>
+		<div id="message-timeout" style="display:none;">
 		SWISH REACHED A TIME LIMIT BEFORE PAYMENT STARTED
 	</div>
 </div>

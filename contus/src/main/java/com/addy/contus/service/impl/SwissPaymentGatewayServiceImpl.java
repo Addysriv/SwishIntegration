@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -74,7 +75,7 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 	private static final Logger logger = Logger.getLogger(SwissPaymentGatewayServiceImpl.class);
 
 	@Override
-	public String createSwissPaymentGateway(String amount,String payerAlias)  {
+	public String createSwissPaymentGateway(String amount,Optional<String> payerAlias)  {
 
 		HttpsURLConnection connection = null;
 		logger.info("######### In swish oayment gateway service ############");
@@ -106,15 +107,18 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 			 *
 			 */
 			
-			String mobileNumb=payerAlias;
-			
-			if(mobileNumb.charAt(0)=='0') {
-				mobileNumb=payerAlias.substring(1);
-				logger.info("--- Swish Mobile - "+mobileNumb);
-			}
+			/*If Phone number is not provided it is for M-Commerce*/
+            if (payerAlias.isPresent()) {
+              String mobileNumb = payerAlias.get();
+              if (mobileNumb.charAt(0)=='0') {
+                mobileNumb = payerAlias.get().substring(1);
+                logger.info("--- Swish Mobile - " + mobileNumb);
+                createPaymentrequestDTO.setPayerAlias(swishClientCountryCode + mobileNumb);
+              }
+            }
 			
 			ObjectMapper Obj = new ObjectMapper();
-			createPaymentrequestDTO.setPayerAlias(swishClientCountryCode+mobileNumb);
+              
 			//createPaymentrequestDTO.setPayerAlias(payerAlias);
 			connection.setRequestProperty("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 			connection.setRequestProperty("Content-Length",
@@ -166,26 +170,31 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 			//      
 			//      }
 			rd.close();
+			StringBuilder response =  new StringBuilder();
 			// Print response headers
 			Map<String, List<String>> headers = connection.getHeaderFields();
 			Set<Map.Entry<String, List<String>>> entrySet = headers.entrySet();
 			for (Map.Entry<String, List<String>> entry : entrySet) {
 				String headerName = entry.getKey();
 				List<String> headerValues = entry.getValue();
+				if (StringUtils.equalsIgnoreCase(headerName, "PaymentRequestToken")) {
+                  logger.info("###### Location header value - "+headerValues.get(0));
+                  response.append(headerValues.get(0)+",");
+                  //return headerValues.get(0);
+              }else
 				if (StringUtils.equalsIgnoreCase(headerName, "Location")) {
 					logger.info("###### Location header value - "+headerValues.get(0));
-					return headerValues.get(0);
+					response.append(headerValues.get(0));
 				}
 			}
+			logger.info(response.toString());
+			return response.toString();
 		}catch(Exception e) {
 			logger.info("!!!!!!!!!!!!! Error occured in swish payment creation !!!!!!! ");
 			logger.error("\n");
 			logger.error("Error : ",e);
 			return ("errorSwish:"+"Server is down or busy!! Please try after Sometime");
 		}
-
-
-		return null;
 	}
 
 	@Override
