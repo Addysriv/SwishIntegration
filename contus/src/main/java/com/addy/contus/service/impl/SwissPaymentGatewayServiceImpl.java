@@ -72,6 +72,9 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 	
 	@Value("${swishClientCountryCode}")
 	private String swishClientCountryCode;
+	
+	@Value("${swishTrustStoreFileLocation}")
+	private String swishTrustStoreFileLocation;
 
 	private static final Logger logger = Logger.getLogger(SwissPaymentGatewayServiceImpl.class);
 
@@ -247,9 +250,9 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 		System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
 		System.setProperty("javax.net.ssl.keyStoreType", keystoreType);
 
-		System.setProperty("javax.net.ssl.trustStore", trustStoreFileLocation);
+		System.setProperty("javax.net.ssl.trustStore", swishTrustStoreFileLocation);
 		System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-		//System.setProperty("javax.net.ssl.trustStoreType", trustStoreType);
+		
 
 		System.setProperty("contus.system.swishpaymenturl", testSwishPaymentRequesturl);
 
@@ -261,9 +264,9 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 		System.setProperty("javax.net.ssl.keyStore", productionKeyStore);
 		System.setProperty("javax.net.ssl.keyStorePassword", productionKeyStorePassword);
 		System.setProperty("javax.net.ssl.keyStoreType", keystoreType);
-		System.setProperty("javax.net.ssl.trustStore", trustStoreFileLocation);
+		System.setProperty("javax.net.ssl.trustStore", swishTrustStoreFileLocation);
 		System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-		//System.setProperty("javax.net.ssl.trustStoreType", trustStoreType);
+		
 
 		System.setProperty("contus.system.swishpaymenturl", prodSwishPaymentRequestUrl);
 
