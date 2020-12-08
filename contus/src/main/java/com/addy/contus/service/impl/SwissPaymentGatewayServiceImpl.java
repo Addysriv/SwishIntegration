@@ -39,8 +39,8 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 	@Value("${swishPaymentDescription}")
 	private String swishPaymentDescription;
 
-	@Value("${swishClientCountryCode}")
-	private String swishClientCountryCode;
+	//@Value("${swishClientCountryCode}")
+	//private String swishClientCountryCode;
 
 	@Value("${testKeyStore}")
 	private String keystoreFileLocation;
@@ -57,8 +57,6 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 	@Value("${trustStorePassword}")
 	private String trustStorePassword;
 
-	@Value("${trustStoreType}")
-	private String trustStoreType;
 
 	@Value("${testSwishPaymentRequesturl}")
 	private String testSwishPaymentRequesturl;
@@ -71,6 +69,9 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 
 	@Value("${prodSwishPaymentRequestUrl}")
 	private String prodSwishPaymentRequestUrl;
+	
+	@Value("${swishClientCountryCode}")
+	private String swishClientCountryCode;
 
 	private static final Logger logger = Logger.getLogger(SwissPaymentGatewayServiceImpl.class);
 
@@ -248,7 +249,7 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 
 		System.setProperty("javax.net.ssl.trustStore", trustStoreFileLocation);
 		System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-		System.setProperty("javax.net.ssl.trustStoreType", trustStoreType);
+		//System.setProperty("javax.net.ssl.trustStoreType", trustStoreType);
 
 		System.setProperty("contus.system.swishpaymenturl", testSwishPaymentRequesturl);
 
@@ -262,7 +263,7 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 		System.setProperty("javax.net.ssl.keyStoreType", keystoreType);
 		System.setProperty("javax.net.ssl.trustStore", trustStoreFileLocation);
 		System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-		System.setProperty("javax.net.ssl.trustStoreType", trustStoreType);
+		//System.setProperty("javax.net.ssl.trustStoreType", trustStoreType);
 
 		System.setProperty("contus.system.swishpaymenturl", prodSwishPaymentRequestUrl);
 
