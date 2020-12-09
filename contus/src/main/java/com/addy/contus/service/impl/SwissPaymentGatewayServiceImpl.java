@@ -20,8 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.addy.contus.controller.BaseFunctionController;
 import com.addy.contus.dto.CreatePaymentRequestDTO;
 import com.addy.contus.dto.Currency;
 import com.addy.contus.dto.GetSwishPaymentResponseDTO;
@@ -87,7 +85,7 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 			logger.info(" Amount - "+amount +" payerAlias - "+payerAlias);
 			
 			//setTestSwish();
-			setProductionSwish();
+			//setProductionSwish();
 
 			URL url = new URL(System.getProperty("contus.system.swishpaymenturl"));
 
@@ -245,32 +243,32 @@ public class SwissPaymentGatewayServiceImpl implements SwissPaymentGatewayServic
 		}
 	}
 
-	public void setTestSwish() {
-		System.setProperty("javax.net.ssl.keyStore", keystoreFileLocation);
-		System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
-		System.setProperty("javax.net.ssl.keyStoreType", keystoreType);
-
-		System.setProperty("javax.net.ssl.trustStore", swishTrustStoreFileLocation);
-		System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-		
-
-		System.setProperty("contus.system.swishpaymenturl", testSwishPaymentRequesturl);
-
-	}
-
-	public void setProductionSwish() {
-
-
-		System.setProperty("javax.net.ssl.keyStore", productionKeyStore);
-		System.setProperty("javax.net.ssl.keyStorePassword", productionKeyStorePassword);
-		System.setProperty("javax.net.ssl.keyStoreType", keystoreType);
-		System.setProperty("javax.net.ssl.trustStore", swishTrustStoreFileLocation);
-		System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-		
-
-		System.setProperty("contus.system.swishpaymenturl", prodSwishPaymentRequestUrl);
-
-
-	}
+//	public void setTestSwish() {
+//		System.setProperty("javax.net.ssl.keyStore", keystoreFileLocation);
+//		System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
+//		System.setProperty("javax.net.ssl.keyStoreType", keystoreType);
+//
+//		System.setProperty("javax.net.ssl.trustStore", swishTrustStoreFileLocation);
+//		System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+//		
+//
+//		System.setProperty("contus.system.swishpaymenturl", testSwishPaymentRequesturl);
+//
+//	}
+//
+//	public void setProductionSwish() {
+//
+//
+//		System.setProperty("javax.net.ssl.keyStore", productionKeyStore);
+//		System.setProperty("javax.net.ssl.keyStorePassword", productionKeyStorePassword);
+//		System.setProperty("javax.net.ssl.keyStoreType", keystoreType);
+//		System.setProperty("javax.net.ssl.trustStore", swishTrustStoreFileLocation);
+//		System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+//		
+//
+//		System.setProperty("contus.system.swishpaymenturl", prodSwishPaymentRequestUrl);
+//
+//
+//	}
 
 }

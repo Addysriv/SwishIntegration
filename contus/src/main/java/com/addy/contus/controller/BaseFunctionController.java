@@ -65,6 +65,8 @@ public class BaseFunctionController {
 
   @Value("${trustStorePassword}")
   private String trustStorePassword;
+  @Autowired
+  RestTemplate restTemplate;
 
 
   private static final Logger logger = Logger.getLogger(BaseFunctionController.class);
@@ -99,17 +101,7 @@ public class BaseFunctionController {
               String value = (String)p.get(key);
               System.out.println(key + ": " + value);
           }
-          /*Load the Custom CACERTS while contacting Google*/
-          SSLContext sslContext = new SSLContextBuilder()
-              .loadTrustMaterial( new ClassPathResource(trustStoreFileLocation).getFile(), trustStorePassword.toCharArray())
-              .build();
-          System.out.println("Is it using this bean");
-          SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
-          HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
-          HttpComponentsClientHttpRequestFactory factory =
-              new HttpComponentsClientHttpRequestFactory(httpClient);
-          /*End of SSL Context Changes*/
-          final RestTemplate restTemplate = new RestTemplate(factory);
+
           ReCaptchaResponse captchaResult=restTemplate.exchange(captchaUrl+secretKey,HttpMethod.POST,null,ReCaptchaResponse.class ).getBody();
           
           logger.info("Captcha verification - "+captchaResult.isSuccess());
