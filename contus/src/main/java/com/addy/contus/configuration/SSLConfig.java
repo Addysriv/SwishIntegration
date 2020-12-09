@@ -1,4 +1,4 @@
-package com.addy.contus.controller;
+package com.addy.contus.configuration;
 
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +43,7 @@ public class SSLConfig {
   
   @Value("${swishTrustStoreFileLocation}")
   private String swishTrustStoreFileLocation;
+  
     @Autowired
     private Environment env;
 
