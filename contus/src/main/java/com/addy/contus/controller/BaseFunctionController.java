@@ -1,30 +1,40 @@
 package com.addy.contus.controller;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.Properties;
+import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-import com.addy.contus.dto.CreatePaymentRequestDTO;
+import com.addy.contus.dto.ReCaptchaResponse;
 import com.addy.contus.service.SwissPaymentGatewayService;
 import com.addy.contus.service.exception.SwishPaymentCreationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,10 +43,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 @Controller
 public class BaseFunctionController {
 
-
-
-  @Autowired
-  RestTemplate restTemplate;
 
   @Autowired
   SessionLocaleResolver resolver;
@@ -47,6 +53,18 @@ public class BaseFunctionController {
 
   @Autowired
   SwissPaymentGatewayService swissPaymentGatewayService;
+
+  @Value("${captchaVerifSecretKey}")
+  private String captchaSecretKey;
+  
+  @Value("${captchaVerifUrl}")
+  private String captchaUrl;
+  
+  @Value("${trustStore}")
+  private String  trustStoreFileLocation;
+
+  @Value("${trustStorePassword}")
+  private String trustStorePassword;
 
 
   private static final Logger logger = Logger.getLogger(BaseFunctionController.class);
@@ -65,6 +83,49 @@ public class BaseFunctionController {
     }
 
     return "organizationPage";
+  }
+  
+  @RequestMapping("/submitContactForm")
+  public @ResponseBody String submitContactFormMethod(@RequestParam(value="contactName") String name, @RequestParam(value="contactEmail") String email,
+                              @RequestParam("contactCompany") String company, @RequestParam("contactComment")String message,  
+                              @RequestParam("gresponse")String captchaResponse,
+                              HttpServletRequest request,HttpServletResponse response) throws RestClientException, Exception {
+      
+          String secretKey="?secret="+captchaSecretKey+"&response="+captchaResponse;
+          Properties p=System.getProperties();
+          Enumeration keys = p.keys();
+          while (keys.hasMoreElements()) {
+              String key = (String)keys.nextElement();
+              String value = (String)p.get(key);
+              System.out.println(key + ": " + value);
+          }
+          /*Load the Custom CACERTS while contacting Google*/
+          SSLContext sslContext = new SSLContextBuilder()
+              .loadTrustMaterial( new ClassPathResource(trustStoreFileLocation).getFile(), trustStorePassword.toCharArray())
+              .build();
+          System.out.println("Is it using this bean");
+          SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
+          HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
+          HttpComponentsClientHttpRequestFactory factory =
+              new HttpComponentsClientHttpRequestFactory(httpClient);
+          /*End of SSL Context Changes*/
+          final RestTemplate restTemplate = new RestTemplate(factory);
+          ReCaptchaResponse captchaResult=restTemplate.exchange(captchaUrl+secretKey,HttpMethod.POST,null,ReCaptchaResponse.class ).getBody();
+          
+          logger.info("Captcha verification - "+captchaResult.isSuccess());
+          
+          if(!captchaResult.isSuccess())
+          {
+              return "captchaError";
+              
+          }
+
+          logger.info(name);
+          logger.info(company);
+          logger.info(email);
+          logger.info(message);
+              return "success";
+          
   }
 
   @RequestMapping("/englishOrg")
@@ -137,9 +198,11 @@ public class BaseFunctionController {
        */}
 
     else {
-
-
-      return "swish";
+      String amount = "100";
+      String payerAlias = "90878474773";
+      map.put("paymentRequestInfoUrl",
+          swissPaymentGatewayService.createSwissPaymentGateway(amount,Optional.of(payerAlias)));
+      return "swishClock";
     }
     return "";
 
@@ -524,9 +587,9 @@ public class BaseFunctionController {
   public String createPaymentLinkForSwishPaymentGateway(ModelMap map) throws MalformedURLException,
       ProtocolException, JsonProcessingException, IOException, SwishPaymentCreationException {
     String amount = "100";
-    String payerAlias = "4354";
+    String payerAlias = "90878474773";
     map.put("paymentRequestInfoUrl",
-        swissPaymentGatewayService.createSwissPaymentGateway(amount, payerAlias));
+        swissPaymentGatewayService.createSwissPaymentGateway(amount,Optional.of(payerAlias)));
     return "swishClock";
   }
 
